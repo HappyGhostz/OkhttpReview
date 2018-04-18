@@ -10,6 +10,11 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
 
+import com.example.zcp.okhttpreview.data.BeautyPicture;
+
+import net.NewService;
+import net.RetrofitClient;
+
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
@@ -30,9 +35,10 @@ public class MainActivity extends AppCompatActivity {
     //设缓存有效期为1天
     long CACHE_STALE_SEC = 60 * 60 * 24 * 1;
     //查询缓存的Cache-Control设置，为if-only-cache时只查询缓存而不会请求服务器，max-stale可以配合设置缓存失效时间
-    String CACHE_CONTROL_CACHE = "only-if-cached, max-stale=" + CACHE_STALE_SEC;
+    public String CACHE_CONTROL_CACHE = "only-if-cached, max-stale=" + CACHE_STALE_SEC;
     //(假如请求了服务器并在a时刻返回响应结果，则在max-age规定的秒数内，浏览器将不会发送对应的请求到服务器，数据由缓存直接返回)
-    String CACHE_CONTROL_NETWORK = "Cache-Control: public, max-age=3600";
+    public static final String CACHE_CONTROL_NETWORK = "Cache-Control: public, max-age=3600";
+    public String NEWS_HOST = "http://c.3g.163.com/";
     private Cache cache;
     private Interceptor cacheInterceptor;
     private Interceptor logInterceptor;
@@ -171,7 +177,32 @@ public class MainActivity extends AppCompatActivity {
         btRequestHttp.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Request request = new Request.Builder()
+                RetrofitClient.getInstanceStringUrl("http://image.baidu.com/data/", NewService.class)
+                        .getWelfarePhotoCall(0,0,50,"美女","全部", "", "channel", 1)
+                        .enqueue(new retrofit2.Callback<BeautyPicture>() {
+                            @Override
+                            public void onResponse(retrofit2.Call<BeautyPicture> call, final retrofit2.Response<BeautyPicture> response) {
+                                //请求失败回调方法
+                                runOnUiThread(new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        tvShow.setText(response.body().col+":"+response.body().col);
+                                    }
+                                });
+                            }
+
+                            @Override
+                            public void onFailure(retrofit2.Call<BeautyPicture> call, final Throwable t) {
+                                //请求失败回调方法
+                                runOnUiThread(new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        tvShow.setText(t.getMessage());
+                                    }
+                                });
+                            }
+                        });
+               /* Request request = new Request.Builder()
                         .url("https://blog.csdn.net/zcpHappy/article/details/79719141")//可以是string字符串，也可以是URL 或是一个HttpUrl
 //                        .addHeader()添加请求头
                         .header("User-Agent", "oktest") //同上 方式不一样
@@ -243,7 +274,7 @@ public class MainActivity extends AppCompatActivity {
                                     }
                                 });
                             }
-                        });
+                        });*/
             }
         });
     }
