@@ -1,6 +1,7 @@
 package net;
 
 import com.example.zcp.okhttpreview.data.BeautyPicture;
+import com.trello.rxlifecycle2.components.RxActivity;
 
 import io.reactivex.Observable;
 import io.reactivex.ObservableSource;
@@ -20,10 +21,11 @@ public class NetUtils {
 
     private static ObservableTransformer<BeautyPicture,BeautyPicture> transformer = getSchedulers();
 
-    public static Observable<BeautyPicture> getService(){
+    public static Observable<BeautyPicture> getService(RxActivity activity){
         NewService newService = RetrofitClient.getOkhttpClientServiceStringUrl("http://image.baidu.com/data/", NewService.class);
         return newService.getWelfarePhoto(0,0,50,"美女","全部", "", "channel", 1)
-                .compose(transformer);
+                .compose(transformer)
+                .compose(activity.<BeautyPicture>bindToLifecycle());
     }
     private static <T>ObservableTransformer<T,T> getSchedulers(){
         return new ObservableTransformer<T, T>() {

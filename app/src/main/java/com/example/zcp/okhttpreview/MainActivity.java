@@ -11,7 +11,9 @@ import android.widget.Button;
 import android.widget.TextView;
 
 import com.example.zcp.okhttpreview.data.BeautyPicture;
+import com.trello.rxlifecycle2.components.RxActivity;
 
+import net.NetUtils;
 import net.NewService;
 import net.RetrofitClient;
 
@@ -21,6 +23,9 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 
+import io.reactivex.Observer;
+import io.reactivex.annotations.NonNull;
+import io.reactivex.disposables.Disposable;
 import okhttp3.Cache;
 import okhttp3.CacheControl;
 import okhttp3.Call;
@@ -30,7 +35,7 @@ import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends RxActivity {
 
     //设缓存有效期为1天
     long CACHE_STALE_SEC = 60 * 60 * 24 * 1;
@@ -177,6 +182,28 @@ public class MainActivity extends AppCompatActivity {
         btRequestHttp.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                NetUtils.getService(MainActivity.this)
+                        .subscribe(new Observer<BeautyPicture>() {
+                            @Override
+                            public void onSubscribe(@NonNull Disposable d) {
+
+                            }
+
+                            @Override
+                            public void onNext(@NonNull BeautyPicture beautyPicture) {
+                                tvShow.setText(beautyPicture.col+":"+beautyPicture.getTag());
+                            }
+
+                            @Override
+                            public void onError(@NonNull Throwable e) {
+
+                            }
+
+                            @Override
+                            public void onComplete() {
+
+                            }
+                        });
                 RetrofitClient.getInstanceStringUrl("http://image.baidu.com/data/", NewService.class)
                         .getWelfarePhotoCall(0,0,50,"美女","全部", "", "channel", 1)
                         .enqueue(new retrofit2.Callback<BeautyPicture>() {
@@ -190,18 +217,18 @@ public class MainActivity extends AppCompatActivity {
                                     }
                                 });
                             }
-
-                            @Override
-                            public void onFailure(retrofit2.Call<BeautyPicture> call, final Throwable t) {
-                                //请求失败回调方法
-                                runOnUiThread(new Runnable() {
-                                    @Override
-                                    public void run() {
-                                        tvShow.setText(t.getMessage());
-                                    }
-                                });
-                            }
-                        });
+//
+//                            @Override
+//                            public void onFailure(retrofit2.Call<BeautyPicture> call, final Throwable t) {
+//                                //请求失败回调方法
+//                                runOnUiThread(new Runnable() {
+//                                    @Override
+//                                    public void run() {
+//                                        tvShow.setText(t.getMessage());
+//                                    }
+//                                });
+//                            }
+//                        });
                /* Request request = new Request.Builder()
                         .url("https://blog.csdn.net/zcpHappy/article/details/79719141")//可以是string字符串，也可以是URL 或是一个HttpUrl
 //                        .addHeader()添加请求头
