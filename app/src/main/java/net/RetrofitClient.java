@@ -1,5 +1,8 @@
 package net;
 
+import android.content.Context;
+
+import java.io.File;
 import java.util.concurrent.TimeUnit;
 
 import okhttp3.Cache;
@@ -20,7 +23,11 @@ public class RetrofitClient {
 
     private static OkHttpClient okHttpClient;
 
-    public static void initNet(Cache cache, Interceptor interceptor, Interceptor netInterceptor){
+    public static void initNet(Context context ,Cache cache, Interceptor interceptor, Interceptor netInterceptor){
+        if(cache==null){
+            //缓存目录
+            cache = new Cache(new File(context.getCacheDir(),"cache"),1024*1024*1024);
+        }
         OkHttpClient.Builder builder = new OkHttpClient.Builder()
                 .cache(cache)
                 .connectTimeout(10, TimeUnit.SECONDS)
@@ -32,7 +39,6 @@ public class RetrofitClient {
             builder.addNetworkInterceptor(netInterceptor);
         }
         okHttpClient = builder.build();
-//        retrofitClient = new RetrofitClient(cache,interceptor,netInterceptor);
     }
     public static void initNet(OkHttpClient client){
         okHttpClient = client;

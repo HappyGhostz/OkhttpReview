@@ -2,10 +2,16 @@ package net;
 
 import com.example.zcp.okhttpreview.data.BeautyPicture;
 
+import java.util.HashMap;
+
 import io.reactivex.Observable;
 import retrofit2.Call;
+import retrofit2.http.Field;
+import retrofit2.http.FormUrlEncoded;
 import retrofit2.http.GET;
+import retrofit2.http.HeaderMap;
 import retrofit2.http.Headers;
+import retrofit2.http.POST;
 import retrofit2.http.Query;
 
 import static com.example.zcp.okhttpreview.MainActivity.CACHE_CONTROL_NETWORK;
@@ -45,4 +51,5 @@ public interface NewService {
                                             @Query("tag3")String tag3,
                                             @Query("p")String channel,
                                             @Query("from")int from);
+
 }

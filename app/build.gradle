@@ -25,19 +25,19 @@ dependencies {
         exclude group: 'com.android.support', module: 'support-annotations'
     })
     compile 'com.android.support:appcompat-v7:25.+'
-    compile 'com.android.support.constraint:constraint-layout:1.0.2'
+    compile 'com.android.support.constraint:constraint-layout:1.1.0'
     testCompile 'junit:junit:4.12'
     //okhttp
     compile 'com.squareup.okhttp3:okhttp:3.10.0'
     //rx
-    compile 'io.reactivex.rxjava2:rxjava:2.1.1'
-    compile 'io.reactivex.rxjava2:rxandroid:2.0.1'
+    compile 'io.reactivex.rxjava2:rxjava:2.1.12'
+    compile 'io.reactivex.rxjava2:rxandroid:2.0.2'
     compile "io.reactivex.rxjava2:rxjava:2.1.12"
     compile 'io.reactivex.rxjava2:rxandroid:2.0.2'
     compile 'com.squareup.retrofit2:retrofit:2.4.0'
     compile 'com.squareup.retrofit2:converter-gson:2.4.0'
     compile 'com.squareup.retrofit2:adapter-rxjava2:2.4.0'
-    compile 'com.trello.rxlifecycle2:rxlifecycle-components:2.1.0'
+    compile 'com.trello.rxlifecycle2:rxlifecycle-components:2.2.1'
     /*
     retrofit支持的数据解析格式
     Gson: com.squareup.retrofit2:converter-gson
@@ -48,4 +48,15 @@ dependencies {
     Simple XML: com.squareup.retrofit2:converter-simplexml
     Scalars (primitives, boxed, and String): com.squareup.retrofit2:converter-scalars
     */
+}
+configurations.all {
+    resolutionStrategy.eachDependency { details ->
+        def requested = details.requested
+        if (requested.group == 'com.android.support') {
+            if (!requested.name.startsWith("multidex")) {
+                //这里写你想统一的版本是多少，前提是你sdk里有
+                details.useVersion '25.0.0'
+            }
+        }
+    }
 }

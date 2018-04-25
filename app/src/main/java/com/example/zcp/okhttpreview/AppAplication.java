@@ -90,7 +90,7 @@ public class AppAplication extends Application {
                 return response;
             }
         };
-        RetrofitClient.initNet(cache,logInterceptor,cacheInterceptor);
+        RetrofitClient.initNet(this,cache,logInterceptor,cacheInterceptor);
     }
     /**
      * 判断网络是否可用

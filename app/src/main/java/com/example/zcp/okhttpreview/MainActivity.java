@@ -3,7 +3,6 @@ package com.example.zcp.okhttpreview;
 import android.content.Context;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
-import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
@@ -17,19 +16,14 @@ import net.NetUtils;
 import net.NewService;
 import net.RetrofitClient;
 
-import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
 
 import io.reactivex.Observer;
 import io.reactivex.annotations.NonNull;
 import io.reactivex.disposables.Disposable;
 import okhttp3.Cache;
 import okhttp3.CacheControl;
-import okhttp3.Call;
-import okhttp3.Callback;
 import okhttp3.Interceptor;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
@@ -204,20 +198,20 @@ public class MainActivity extends RxActivity {
 
                             }
                         });
-                RetrofitClient.getInstanceStringUrl("http://image.baidu.com/data/", NewService.class)
-                        .getWelfarePhotoCall(0,0,50,"美女","全部", "", "channel", 1)
-                        .enqueue(new retrofit2.Callback<BeautyPicture>() {
-                            @Override
-                            public void onResponse(retrofit2.Call<BeautyPicture> call, final retrofit2.Response<BeautyPicture> response) {
-                                //请求失败回调方法
-                                runOnUiThread(new Runnable() {
-                                    @Override
-                                    public void run() {
-                                        tvShow.setText(response.body().col+":"+response.body().col);
-                                    }
-                                });
-                            }
-//
+
+//                RetrofitClient.getInstanceStringUrl("http://image.baidu.com/data/", NewService.class)
+//                        .getWelfarePhotoCall(0,0,50,"美女","全部", "", "channel", 1)
+//                        .enqueue(new retrofit2.Callback<BeautyPicture>() {
+//                            @Override
+//                            public void onResponse(retrofit2.Call<BeautyPicture> call, final retrofit2.Response<BeautyPicture> response) {
+//                                //请求失败回调方法
+//                                runOnUiThread(new Runnable() {
+//                                    @Override
+//                                    public void run() {
+//                                        tvShow.setText(response.body().col+":"+response.body().col);
+//                                    }
+//                                });
+//                            }
 //                            @Override
 //                            public void onFailure(retrofit2.Call<BeautyPicture> call, final Throwable t) {
 //                                //请求失败回调方法
