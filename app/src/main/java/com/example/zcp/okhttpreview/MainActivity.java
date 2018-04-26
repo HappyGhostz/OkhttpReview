@@ -28,6 +28,7 @@ import okhttp3.Interceptor;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
+import retrofit2.Call;
 
 public class MainActivity extends RxActivity {
 
@@ -199,30 +200,30 @@ public class MainActivity extends RxActivity {
                             }
                         });
 
-//                RetrofitClient.getInstanceStringUrl("http://image.baidu.com/data/", NewService.class)
-//                        .getWelfarePhotoCall(0,0,50,"美女","全部", "", "channel", 1)
-//                        .enqueue(new retrofit2.Callback<BeautyPicture>() {
-//                            @Override
-//                            public void onResponse(retrofit2.Call<BeautyPicture> call, final retrofit2.Response<BeautyPicture> response) {
-//                                //请求失败回调方法
-//                                runOnUiThread(new Runnable() {
-//                                    @Override
-//                                    public void run() {
-//                                        tvShow.setText(response.body().col+":"+response.body().col);
-//                                    }
-//                                });
-//                            }
-//                            @Override
-//                            public void onFailure(retrofit2.Call<BeautyPicture> call, final Throwable t) {
-//                                //请求失败回调方法
-//                                runOnUiThread(new Runnable() {
-//                                    @Override
-//                                    public void run() {
-//                                        tvShow.setText(t.getMessage());
-//                                    }
-//                                });
-//                            }
-//                        });
+                Call<BeautyPicture> photoCall = RetrofitClient.getInstanceStringUrl("http://image.baidu.com/data/", NewService.class)
+                        .getWelfarePhotoCall(0, 0, 50, "美女", "全部", "", "channel", 1);
+                photoCall.enqueue(new retrofit2.Callback<BeautyPicture>() {
+                            @Override
+                            public void onResponse(retrofit2.Call<BeautyPicture> call, final retrofit2.Response<BeautyPicture> response) {
+                                //请求失败回调方法
+                                runOnUiThread(new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        tvShow.setText(response.body().col+":"+response.body().col);
+                                    }
+                                });
+                            }
+                            @Override
+                            public void onFailure(retrofit2.Call<BeautyPicture> call, final Throwable t) {
+                                //请求失败回调方法
+                                runOnUiThread(new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        tvShow.setText(t.getMessage());
+                                    }
+                                });
+                            }
+                        });
                /* Request request = new Request.Builder()
                         .url("https://blog.csdn.net/zcpHappy/article/details/79719141")//可以是string字符串，也可以是URL 或是一个HttpUrl
 //                        .addHeader()添加请求头
