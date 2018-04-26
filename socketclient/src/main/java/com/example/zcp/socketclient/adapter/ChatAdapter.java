@@ -34,17 +34,17 @@ public class ChatAdapter extends BaseMultiItemQuickAdapter<Transmission, BaseVie
 
         switch (item.itemType) {
             case Constants.CHAT_FROM:
-                helper.setText(R.id.chat_from_content, item.content);
+                helper.setText(R.id.chat_from_content, item.content)
+                        .setText(R.id.chat_from_time,item.time);
                 break;
             case Constants.CHAT_SEND:
                 if (item.showType == 1) {
-                    helper.setVisible(R.id.chat_send_image, true);
                     helper.setVisible(R.id.chat_send_content, false);
-                    helper.setImageBitmap(R.id.chat_send_image, BitmapFactory.decodeFile(item.content));
+                    helper.setText(R.id.chat_send_time,item.time);
                 } else {
-                    helper.setVisible(R.id.chat_send_image, false);
                     helper.setVisible(R.id.chat_send_content, true);
-                    helper.setText(R.id.chat_send_content, item.content);
+                    helper.setText(R.id.chat_send_content, item.content)
+                            .setText(R.id.chat_send_time,item.time);
                 }
                 break;
             default:

@@ -35,6 +35,8 @@ public class Transmission implements Parcelable, MultiItemEntity {
 
     //0 文本  1  图片
     public int showType;
+    //时间
+    public String time;
 
     public Transmission() {
     }
@@ -58,6 +60,7 @@ public class Transmission implements Parcelable, MultiItemEntity {
         dest.writeLong(this.transLength);
         dest.writeInt(this.itemType);
         dest.writeInt(this.showType);
+        dest.writeString(this.time);
     }
 
     protected Transmission(Parcel in) {
@@ -68,6 +71,7 @@ public class Transmission implements Parcelable, MultiItemEntity {
         this.transLength = in.readLong();
         this.itemType = in.readInt();
         this.showType = in.readInt();
+        this.time = in.readString();
     }
 
     public static final Creator<Transmission> CREATOR = new Creator<Transmission>() {

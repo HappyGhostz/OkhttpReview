@@ -1,5 +1,6 @@
 package com.example.zcp.socketclient;
 
+import android.content.Intent;
 import android.os.Handler;
 import android.os.Message;
 import android.os.SystemClock;
@@ -14,13 +15,18 @@ import android.widget.RelativeLayout;
 
 import com.example.zcp.socketclient.adapter.ChatAdapter;
 import com.example.zcp.socketclient.bean.Transmission;
+import com.example.zcp.socketclient.server.SocketServer;
 
+import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
 import java.net.Socket;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
@@ -41,6 +47,16 @@ public class MainActivity extends AppCompatActivity {
                     progressBar.setVisibility(View.GONE);
                     break;
                 case SOCKET_NEW_MESSAGE:
+                    String time = formatDate(System.currentTimeMillis());
+                    String message = (String) msg.obj;
+                    Transmission transmission = new Transmission();
+                    transmission.time =time;
+                    transmission.content = message;
+                    transmission.itemType = Constants.CHAT_FROM;
+                    List<Transmission> defaultData = getDefaultData();
+                    defaultData.add(transmission);
+                    mAdapter.loadMoreComplete();
+                    mAdapter.addData(defaultData);
                     break;
             }
         }
@@ -51,6 +67,7 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        startService(new Intent(MainActivity.this,SocketServer.class));
         initView();
         initDate();
     }
@@ -71,21 +88,72 @@ public class MainActivity extends AppCompatActivity {
                 connectSocketServer();
             }
         }).start();
+        send.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                String sendMessage = inputString.getText().toString().trim();
+                String time = formatDate(System.currentTimeMillis());
+                Transmission transmission = new Transmission();
+                transmission.time =time;
+                transmission.content = sendMessage;
+                transmission.itemType = Constants.CHAT_SEND;
+                transmission.showType = Constants.RECEIVE_MSG;
+                List<Transmission> defaultData = getDefaultData();
+                defaultData.add(transmission);
+                mAdapter.loadMoreComplete();
+                mAdapter.addData(defaultData);
+            }
+        });
     }
 
     private void connectSocketServer() {
         Socket clientSocket =null;
+        PrintWriter out=null;
         while (clientSocket==null){
             try {
                 clientSocket = new Socket("localhost", 8866);
                 mClientSocket = clientSocket;
-                PrintWriter out = new PrintWriter(new BufferedWriter(new OutputStreamWriter(clientSocket.getOutputStream())), true);
+                out = new PrintWriter(new BufferedWriter(new OutputStreamWriter(clientSocket.getOutputStream())), true);
                 mHandler.sendEmptyMessage(SOCKET_CONNECT);
                 System.out.println("连接成功!");
             } catch (IOException e) {
                 e.printStackTrace();
                 SystemClock.sleep(1000);
                 System.out.println("retry to connect...");
+            }
+        }
+        BufferedReader reader=null;
+        try {
+            reader = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
+            while (!MainActivity.this.isFinishing()){
+                String message = reader.readLine();
+                if(message!=null){
+                    mHandler.obtainMessage(SOCKET_NEW_MESSAGE,message);
+                }
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }finally {
+            try{
+                if(reader!=null){
+                    reader.close();
+                }
+            }catch (Exception e){
+                e.printStackTrace();
+            }
+            try {
+                if(out!=null){
+                    out.close();
+                }
+            }catch (Exception e){
+                e.printStackTrace();
+            }
+            try {
+                if(clientSocket!=null){
+                    clientSocket.close();
+                }
+            }catch (Exception e){
+                e.printStackTrace();
             }
         }
 
@@ -107,5 +175,21 @@ public class MainActivity extends AppCompatActivity {
         datas.add(trans);
 
         return datas;
+    }
+    private String formatDate(long time){
+        return new SimpleDateFormat("HH:mm:ss").format(new Date(time));
+    }
+
+    @Override
+    protected void onDestroy() {
+        if(mClientSocket!=null){
+            try {
+                mClientSocket.shutdownInput();
+                mClientSocket.close();
+            }catch (Exception e){
+                e.printStackTrace();
+            }
+        }
+        super.onDestroy();
     }
 }

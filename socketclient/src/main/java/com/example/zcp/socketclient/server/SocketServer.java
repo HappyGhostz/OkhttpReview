@@ -1,9 +1,10 @@
-package com.example.zcp.socketserver;
+package com.example.zcp.socketclient.server;
 
 import android.app.Service;
 import android.content.Intent;
 import android.os.IBinder;
 import android.support.annotation.Nullable;
+import android.util.Log;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
@@ -31,8 +32,9 @@ public class SocketServer  extends Service{
 
     @Override
     public void onCreate() {
-        super.onCreate();
         new Thread(new TcpServer()).start();
+        super.onCreate();
+
     }
 
     @Override
@@ -48,12 +50,14 @@ public class SocketServer  extends Service{
             ServerSocket serverSocket = null;
             try {
                 serverSocket = new ServerSocket(8866);
+                Log.e( "serverSocket: ","服务已开启!!!" );
             } catch (IOException e) {
                 e.printStackTrace();
             }
             while (!isDestory){
                 try {
                     final Socket client = serverSocket.accept();
+                    Log.e( "serverSocketaccept: ","accept" );
                     new Thread(new Runnable() {
                         @Override
                         public void run() {
