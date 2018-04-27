@@ -53,15 +53,19 @@ public class MainActivity extends AppCompatActivity {
                     transmission.time =time;
                     transmission.content = message;
                     transmission.itemType = Constants.CHAT_FROM;
-                    List<Transmission> defaultData = getDefaultData();
+                    List<Transmission> defaultData = new ArrayList<>();
                     defaultData.add(transmission);
                     mAdapter.loadMoreComplete();
                     mAdapter.addData(defaultData);
+//                    scollViewToShow(mAdapter.getItemCount()-1);
+                    smootViewToShow(mAdapter.getItemCount()-1);
                     break;
             }
         }
     };
     private RelativeLayout progressBar;
+    private PrintWriter out;
+    private LinearLayoutManager mManager;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -77,7 +81,7 @@ public class MainActivity extends AppCompatActivity {
         inputString = (EditText) findViewById(R.id.et_content);
         send = (Button) findViewById(R.id.btn_send);
         progressBar = (RelativeLayout) findViewById(R.id.progress_bar);
-        recyclerView.setLayoutManager(new LinearLayoutManager(this));
+        recyclerView.setLayoutManager(mManager = new LinearLayoutManager(this));
         recyclerView.setAdapter(mAdapter = new ChatAdapter(getDefaultData()));
     }
 
@@ -98,17 +102,20 @@ public class MainActivity extends AppCompatActivity {
                 transmission.content = sendMessage;
                 transmission.itemType = Constants.CHAT_SEND;
                 transmission.showType = Constants.RECEIVE_MSG;
-                List<Transmission> defaultData = getDefaultData();
+                List<Transmission> defaultData = new ArrayList<>();
+                out.println(sendMessage);
                 defaultData.add(transmission);
                 mAdapter.loadMoreComplete();
                 mAdapter.addData(defaultData);
+//                scollViewToShow(mAdapter.getItemCount()-1);
+                smootViewToShow(mAdapter.getItemCount()-1);
             }
         });
     }
 
     private void connectSocketServer() {
         Socket clientSocket =null;
-        PrintWriter out=null;
+        out = null;
         while (clientSocket==null){
             try {
                 clientSocket = new Socket("localhost", 8866);
@@ -128,7 +135,7 @@ public class MainActivity extends AppCompatActivity {
             while (!MainActivity.this.isFinishing()){
                 String message = reader.readLine();
                 if(message!=null){
-                    mHandler.obtainMessage(SOCKET_NEW_MESSAGE,message);
+                    mHandler.obtainMessage(SOCKET_NEW_MESSAGE,message).sendToTarget();
                 }
             }
         } catch (IOException e) {
@@ -142,7 +149,7 @@ public class MainActivity extends AppCompatActivity {
                 e.printStackTrace();
             }
             try {
-                if(out!=null){
+                if(out !=null){
                     out.close();
                 }
             }catch (Exception e){
@@ -161,17 +168,19 @@ public class MainActivity extends AppCompatActivity {
 
     public List<Transmission> getDefaultData() {
         List<Transmission> datas = new ArrayList<>();
-
+        String time = formatDate(System.currentTimeMillis());
         Transmission trans = new Transmission();
         trans.itemType = Constants.CHAT_FROM;
         trans.transmissionType = Constants.TRANSFER_STR;
-        trans.content = "昆仑";
+        trans.content = "我是服务器";
+        trans.time = time;
         datas.add(trans);
 
         trans = new Transmission();
         trans.itemType = Constants.CHAT_SEND;
         trans.transmissionType = Constants.TRANSFER_STR;
-        trans.content = "英雄志";
+        trans.content = "我是客户端";
+        trans.time = time;
         datas.add(trans);
 
         return datas;
@@ -192,4 +201,36 @@ public class MainActivity extends AppCompatActivity {
         }
         super.onDestroy();
     }
+    private void scollViewToShow(int position){
+        int firstVisibleItemPosition = mManager.findFirstVisibleItemPosition();
+        int lastVisibleItemPosition = mManager.findLastVisibleItemPosition();
+        if(position<=firstVisibleItemPosition){
+            recyclerView.scrollToPosition(position);
+        }else if(position<=lastVisibleItemPosition){
+            int top = recyclerView.getChildAt(position - firstVisibleItemPosition).getTop();
+            recyclerView.scrollBy(0,top);
+        }else {
+            recyclerView.scrollToPosition(position);
+        }
+    }
+    private void smootViewToShow(int position){
+        int fristPosition = recyclerView.getChildLayoutPosition(recyclerView.getChildAt(0));
+        int lastPosition = recyclerView.getChildLayoutPosition(recyclerView.getChildAt(recyclerView.getChildCount() - 1));
+        if(position<=fristPosition){
+            recyclerView.smoothScrollToPosition(position);
+        }else if (position<=lastPosition){
+            int movePosition = position - fristPosition;
+            if(movePosition>=0&&movePosition<=recyclerView.getChildCount()-1){
+                int top = recyclerView.getChildAt(movePosition).getTop();
+                recyclerView.smoothScrollBy(0,top);
+            }
+        }else {
+            // 如果要跳转的位置在最后可见项之后，则先调用smoothScrollToPosition将要跳转的位置滚动到可见位置
+            // 再通过onScrollStateChanged控制再次调用smoothMoveToPosition，执行上一个判断中的方法
+            recyclerView.smoothScrollToPosition(position);
+//            mToPosition = position;
+//            mShouldScroll = true;
+        }
+    }
+
 }
