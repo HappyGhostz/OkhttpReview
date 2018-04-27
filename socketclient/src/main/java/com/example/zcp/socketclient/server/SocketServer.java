@@ -49,6 +49,7 @@ public class SocketServer  extends Service{
         public void run() {
             ServerSocket serverSocket = null;
             try {
+                //监听本地8866端口（端口可以随便设置，但不要占用系统端口）
                 serverSocket = new ServerSocket(8866);
                 Log.e( "serverSocket: ","服务已开启!!!" );
             } catch (IOException e) {
